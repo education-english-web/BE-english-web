@@ -1,0 +1,704 @@
+{
+    "taskRoleArn": "ecsTaskRole-${APP_NAME}",
+    "executionRoleArn": "ecsTaskExecutionRole-${APP_NAME}",
+    "volumes": [],
+    "family": "${APP_NAME}",
+    "cpu": "${RESERVED_CPU_UNIT_APP}",
+    "memory": "${RESERVED_MEMORY_APP}",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "requiresCompatibilities": ["FARGATE"],
+    "containerDefinitions": [
+        {
+            "disableNetworking": false,
+            "name": "${ECS_SERVICE}_app",
+            "image": "${ECR_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}:${CIRCLE_SHA1}",
+            "essential": true,
+            "command": ["sh", "-c", "/stampless_srv --http_port 3000"],
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_VERSION",
+                    "value": "${CIRCLE_SHA1}"
+                },
+                {
+                    "name": "DD_SERVICE",
+                    "value": "${ECS_SERVICE}_app"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_PROFILING_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_TAGS",
+                    "value": "env:${ENVIRONMENT},service:${ECS_SERVICE}_app,version:${CIRCLE_SHA1}"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "LOG_LEVEL",
+                    "valueFrom": "/${ECS_SERVICE}/LOG_LEVEL"
+                },
+                {
+                    "name": "AWS_ACCESS_KEY_ID",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_ACCESS_KEY_ID"
+                },
+                {
+                    "name": "AWS_SECRET_ACCESS_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SECRET_ACCESS_KEY"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_REGION"
+                },
+                {
+                    "name": "AWS_S3_BUCKET",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_S3_BUCKET"
+                },
+                {
+                    "name": "AWS_SQS_QUEUE_NAME_FLAIR",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SQS_QUEUE_NAME_FLAIR"
+                },
+                {
+                    "name": "AWS_SQS_QUEUE_NAME_WEBHOOK",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SQS_QUEUE_NAME_WEBHOOK"
+                },
+                {
+                    "name": "AWS_SQS_QUEUE_NAME_ACTIVITY_LOG",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SQS_QUEUE_NAME_ACTIVITY_LOG"
+                },
+                {
+                    "name": "AWS_SQS_QUEUE_NAME_PRE_CONCLUDED_CONTRACT",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SQS_QUEUE_NAME_PRE_CONCLUDED_CONTRACT"
+                },
+                {
+                    "name": "AWS_SQS_QUEUE_NAME_CONCLUDED_CONTRACT",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_SQS_QUEUE_NAME_CONCLUDED_CONTRACT"
+                },
+                {
+                    "name": "AWS_KMS_CMK_KEY_ID",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_KMS_CMK_KEY_ID"
+                },
+                {
+                    "name": "MYSQL_HOST",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_HOST"
+                },
+                {
+                    "name": "MYSQL_PORT",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_PORT"
+                },
+                {
+                    "name": "MYSQL_MASTER_HOSTS",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_MASTER_HOSTS"
+                },
+                {
+                    "name": "MYSQL_SLAVE_HOSTS",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_SLAVE_HOSTS"
+                },
+                {
+                    "name": "MYSQL_USER",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_USER"
+                },
+                {
+                    "name": "MYSQL_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_PASSWORD"
+                },
+                {
+                    "name": "MYSQL_DB",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_DB"
+                },
+                {
+                    "name": "MYSQL_MAX_OPEN_CONNS",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_MAX_OPEN_CONNS"
+                },
+                {
+                    "name": "MYSQL_MAX_IDLE_CONNS",
+                    "valueFrom": "/${ECS_SERVICE}/MYSQL_MAX_IDLE_CONNS"
+                },
+                {
+                    "name": "MFID_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/MFID_CLIENT_ID"
+                },
+                {
+                    "name": "MFID_CLIENT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/MFID_CLIENT_SECRET"
+                },
+                {
+                    "name": "MFID_REDIRECT_URL",
+                    "valueFrom": "/${ECS_SERVICE}/MFID_REDIRECT_URL"
+                },
+                {
+                    "name": "MFID_BASE_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/MFID_BASE_ENDPOINT"
+                },
+                {
+                    "name": "JWT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/JWT_SECRET"
+                },
+                {
+                    "name": "ROLLBAR_TOKEN",
+                    "valueFrom": "/${ECS_SERVICE}/ROLLBAR_TOKEN"
+                },
+                {
+                    "name": "NOTIFIER_ENGINE",
+                    "valueFrom": "/${ECS_SERVICE}/NOTIFIER_ENGINE"
+                },
+                {
+                    "name": "TRACER_ENGINE",
+                    "valueFrom": "/${ECS_SERVICE}/TRACER_ENGINE"
+                },
+                {
+                    "name": "PROFILER_ENGINE",
+                    "valueFrom": "/${ECS_SERVICE}/PROFILER_ENGINE"
+                },
+                {
+                    "name": "SENDGRID_SENDER_NAME",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_SENDER_NAME"
+                },
+                {
+                    "name": "SENDGRID_SENDER_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_SENDER_EMAIL"
+                },
+                {
+                    "name": "SENDGRID_API_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_API_KEY"
+                },
+                {
+                    "name": "SENDGRID_ALLOW_DOMAINS",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_ALLOW_DOMAINS"
+                },
+                {
+                    "name": "INTERNAL_APPROVAL_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/INTERNAL_APPROVAL_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "PARTNER_APPROVAL_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/PARTNER_APPROVAL_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "CONTRACT_REJECTED_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/CONTRACT_REJECTED_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "INTERNAL_USER_REMANDED_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/INTERNAL_USER_REMANDED_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "PARTNER_USER_DELEGATED_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/PARTNER_USER_DELEGATED_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "CONTRACT_CONCLUDED_INTERNAL_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/CONTRACT_CONCLUDED_INTERNAL_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "CONTRACT_CONCLUDED_PARTNER_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/CONTRACT_CONCLUDED_PARTNER_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "USER_INVITATION_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/USER_INVITATION_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "PAPER_CONTRACT_IMPRINTER_APPROVED_EMAIL_TEMPLATE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/PAPER_CONTRACT_IMPRINTER_APPROVED_EMAIL_TEMPLATE_ID"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PAPER_CONTRACT_CONCLUDED_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PAPER_CONTRACT_CONCLUDED_EMAIL"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_CONTRACT_END_DATE_ALERT",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_CONTRACT_END_DATE_ALERT"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_CONTRACT_AUTO_RENEW_ALERT",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_CONTRACT_AUTO_RENEW_ALERT"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_HANDOVER_LAST_ADMIN",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_HANDOVER_LAST_ADMIN"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_EMAIL_AGGREGATION",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_EMAIL_AGGREGATION"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_EMAIL_AGGREGATION_INVITATION",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_EMAIL_AGGREGATION_INVITATION"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_APPLICANT_WITHDRAW_CONTRACT",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_APPLICANT_WITHDRAW_CONTRACT"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PARTNER_APPROVAL_ENGLISH",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PARTNER_APPROVAL_ENGLISH"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PARTNER_USER_DELEGATED_ENGLISH",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PARTNER_USER_DELEGATED_ENGLISH"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_CONTRACT_CONCLUDED_PARTNER_EMAIL_ENGLISH",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_CONTRACT_CONCLUDED_PARTNER_EMAIL_ENGLISH"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PARTNER_REJECTED_INTERNAL_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PARTNER_REJECTED_INTERNAL_EMAIL"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PARTNER_REJECTED",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PARTNER_REJECTED"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PARTNER_REJECTED_ENGLISH",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PARTNER_REJECTED_ENGLISH"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PROPOSAL_MEMBER_ADDED",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PROPOSAL_MEMBER_ADDED"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PROPOSAL_MEMBER_MENTIONED",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PROPOSAL_MEMBER_MENTIONED"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PROPOSAL_STATUS_DONE",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PROPOSAL_STATUS_DONE"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_ALL_INTERNALS_APPROVED",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_ALL_INTERNALS_APPROVED"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_PROPOSAL_ASSIGNEE_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_PROPOSAL_ASSIGNEE_EMAIL"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_REMIND_CONTRACT_EXPIRATION",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_REMIND_CONTRACT_EXPIRATION"
+                },
+                {
+                    "name": "SENDGRID_TEMPLATE_ID_CREATOR_SF_TEMPLATE_CHANGED",
+                    "valueFrom": "/${ECS_SERVICE}/SENDGRID_TEMPLATE_ID_CREATOR_SF_TEMPLATE_CHANGED"
+                },
+                {
+                    "name": "FQDN",
+                    "valueFrom": "/${ECS_SERVICE}/FQDN"
+                },
+                {
+                    "name": "NAVIS_BASE_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/NAVIS_BASE_ENDPOINT"
+                },
+                {
+                    "name": "NAVIS_USERNAME",
+                    "valueFrom": "/${ECS_SERVICE}/NAVIS_USERNAME"
+                },
+                {
+                    "name": "NAVIS_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/NAVIS_PASSWORD"
+                },
+                {
+                    "name": "SECOM_REST_URL",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_URL"
+                },
+                {
+                    "name": "SECOM_REST_API_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_API_CLIENT_ID"
+                },
+                {
+                    "name": "SECOM_REST_CLIENT_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_CLIENT_PASSWORD"
+                },
+                {
+                    "name": "SECOM_REST_GROUP_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_GROUP_ID"
+                },
+                {
+                    "name": "SECOM_REST_ORGANIZATION_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_ORGANIZATION_ID"
+                },
+                {
+                    "name": "SECOM_REST_USER_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_USER_ID"
+                },
+                {
+                    "name": "SECOM_REST_USER_CERT_NO",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_USER_CERT_NO"
+                },
+                {
+                    "name": "SECOM_REST_REQUEST_TIMEOUT",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_REQUEST_TIMEOUT"
+                },
+                {
+                    "name": "SECOM_URL",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_URL"
+                },
+                {
+                    "name": "SECOM_API_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_API_CLIENT_ID"
+                },
+                {
+                    "name": "SECOM_CLIENT_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_CLIENT_PASSWORD"
+                },
+                {
+                    "name": "SECOM_GROUP_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_GROUP_ID"
+                },
+                {
+                    "name": "SECOM_ORGANIZATION_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_ORGANIZATION_ID"
+                },
+                {
+                    "name": "SECOM_REQUEST_TIMEOUT",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REQUEST_TIMEOUT"
+                },
+                {
+                    "name": "BASIC_AUTHENTICATION_USERNAME",
+                    "valueFrom": "/${ECS_SERVICE}/BASIC_AUTHENTICATION_USERNAME"
+                },
+                {
+                    "name": "BASIC_AUTHENTICATION_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/BASIC_AUTHENTICATION_PASSWORD"
+                },
+                {
+                    "name": "CURRENT_ENCRYPTION_METHOD_TYPE",
+                    "valueFrom": "/${ECS_SERVICE}/CURRENT_ENCRYPTION_METHOD_TYPE"
+                },
+                {
+                    "name": "JOB_NUMBER_OF_WORKERS",
+                    "valueFrom": "/${ECS_SERVICE}/JOB_NUMBER_OF_WORKERS"
+                },
+                {
+                    "name": "GSUITE_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/GSUITE_CLIENT_ID"
+                },
+                {
+                    "name": "GSUITE_CLIENT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/GSUITE_CLIENT_SECRET"
+                },
+                {
+                    "name": "OIDC_ALLOW_DOMAINS",
+                    "valueFrom": "/${ECS_SERVICE}/OIDC_ALLOW_DOMAINS"
+                },
+                {
+                    "name": "REDIS_CONN",
+                    "valueFrom": "/${ECS_SERVICE}/REDIS_CONN"
+                },
+                {
+                    "name": "REDIS_ENABLED_TLS",
+                    "valueFrom": "/${ECS_SERVICE}/REDIS_ENABLED_TLS"
+                },
+                {
+                    "name": "REDIS_DB",
+                    "valueFrom": "/${ECS_SERVICE}/REDIS_DB"
+                },
+                {
+                    "name": "ID_HASHER_MIN_LENGTH",
+                    "valueFrom": "/${ECS_SERVICE}/ID_HASHER_MIN_LENGTH"
+                },
+                {
+                    "name": "ID_HASHER_SALT",
+                    "valueFrom": "/${ECS_SERVICE}/ID_HASHER_SALT"
+                },
+                {
+                    "name": "SALESFORCE_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SALESFORCE_CLIENT_ID"
+                },
+                {
+                    "name": "SALESFORCE_CLIENT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/SALESFORCE_CLIENT_SECRET"
+                },
+                {
+                    "name": "SALESFORCE_PRIVATE_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/SALESFORCE_PRIVATE_KEY"
+                },
+                {
+                    "name": "GSERVICE_ACCOUNT_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/GSERVICE_ACCOUNT_EMAIL"
+                },
+                {
+                    "name": "GSERVICE_ACCOUNT_PRIVATE_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/GSERVICE_ACCOUNT_PRIVATE_KEY"
+                },
+                {
+                    "name": "GSERVICE_ACCOUNT_PRIVATE_KEY_ID",
+                    "valueFrom": "/${ECS_SERVICE}/GSERVICE_ACCOUNT_PRIVATE_KEY_ID"
+                },
+                {
+                    "name": "GSERVICE_SPREADSHEET_ID_OFFICES_REPORT",
+                    "valueFrom": "/${ECS_SERVICE}/GSERVICE_SPREADSHEET_ID_OFFICES_REPORT"
+                },
+                {
+                    "name": "GSERVICE_SPREADSHEET_ID_OFFICES_STATUS_REPORT",
+                    "valueFrom": "/${ECS_SERVICE}/GSERVICE_SPREADSHEET_ID_OFFICES_STATUS_REPORT"
+                },
+                {
+                    "name": "AWS_CLOUD_WATCH_LOG_GROUP_NAME",
+                    "valueFrom": "/${ECS_SERVICE}/AWS_CLOUD_WATCH_LOG_GROUP_NAME"
+                },
+                {
+                    "name": "IMPORT_CSV_ROW_LIMIT",
+                    "valueFrom": "/${ECS_SERVICE}/IMPORT_CSV_ROW_LIMIT"
+                },
+                {
+                    "name": "IMPORT_URL",
+                    "valueFrom": "/${ECS_SERVICE}/IMPORT_URL"
+                },
+                {
+                    "name": "OCR_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/OCR_ENDPOINT"
+                },
+                {
+                    "name": "WORD_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/WORD_ENDPOINT"
+                },
+                {
+                    "name": "EXPORT_URL",
+                    "valueFrom": "/${ECS_SERVICE}/EXPORT_URL"
+                },
+                {
+                    "name": "EXPORT_ACTIVITY_LOGS_URL",
+                    "valueFrom": "/${ECS_SERVICE}/EXPORT_ACTIVITY_LOGS_URL"
+                },
+                {
+                    "name": "ATTACHMENTS_MAX_LIMIT_INTERNAL",
+                    "valueFrom": "/${ECS_SERVICE}/ATTACHMENTS_MAX_LIMIT_INTERNAL"
+                },
+                {
+                    "name": "ATTACHMENTS_MAX_LIMIT_EXTERNAL",
+                    "valueFrom": "/${ECS_SERVICE}/ATTACHMENTS_MAX_LIMIT_EXTERNAL"
+                },
+                {
+                    "name": "ATTACHMENTS_MAX_LIMIT_EXTERNAL_FOR_IMPORTING_CONTRACT",
+                    "valueFrom": "/${ECS_SERVICE}/ATTACHMENTS_MAX_LIMIT_EXTERNAL_FOR_IMPORTING_CONTRACT"
+                },
+                {
+                    "name": "BATCH_SENDING_CSV_ROW_LIMIT",
+                    "valueFrom": "/${ECS_SERVICE}/BATCH_SENDING_CSV_ROW_LIMIT"
+                },
+                {
+                    "name": "ADDRESS_BOOK_MAX_LIMIT",
+                    "valueFrom": "/${ECS_SERVICE}/ADDRESS_BOOK_MAX_LIMIT"
+                },
+                {
+                    "name": "FLAIR_BASE_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/FLAIR_BASE_ENDPOINT"
+                },
+                {
+                    "name": "FLAIR_INTERNAL_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/FLAIR_INTERNAL_ENDPOINT"
+                },
+                {
+                    "name": "FLAIR_API_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/FLAIR_API_KEY"
+                },
+                {
+                    "name": "FLAIR_API_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/FLAIR_API_SECRET"
+                },
+                {
+                    "name": "MFC_BOX_BASE_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/MFC_BOX_BASE_ENDPOINT"
+                },
+                {
+                    "name": "MFC_BOX_BASIC_AUTH_USERNAME",
+                    "valueFrom": "/${ECS_SERVICE}/MFC_BOX_BASIC_AUTH_USERNAME"
+                },
+                {
+                    "name": "MFC_BOX_BASIC_AUTH_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/MFC_BOX_BASIC_AUTH_PASSWORD"
+                },
+                {
+                    "name": "CDB_WEBHOOK_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/CDB_WEBHOOK_ENDPOINT"
+                },
+                {
+                    "name": "ERP_BASE_ENDPOINT",
+                    "valueFrom": "/${ECS_SERVICE}/ERP_BASE_ENDPOINT"
+                },
+                {
+                    "name": "ERP_BASIC_AUTH_USERNAME",
+                    "valueFrom": "/${ECS_SERVICE}/ERP_BASIC_AUTH_USERNAME"
+                },
+                {
+                    "name": "ERP_BASIC_AUTH_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/ERP_BASIC_AUTH_PASSWORD"
+                },
+                {
+                    "name": "ZENDESK_SUBDOMAIN",
+                    "valueFrom": "/${ECS_SERVICE}/ZENDESK_SUBDOMAIN"
+                },
+                {
+                    "name": "ZENDESK_EMAIL",
+                    "valueFrom": "/${ECS_SERVICE}/ZENDESK_EMAIL"
+                },
+                {
+                    "name": "ZENDESK_TOKEN",
+                    "valueFrom": "/${ECS_SERVICE}/ZENDESK_TOKEN"
+                },
+                {
+                    "name": "ZENDESK_SCHEDULE_ID",
+                    "valueFrom": "/${ECS_SERVICE}/ZENDESK_SCHEDULE_ID"
+                },
+                {
+                    "name": "SLACK_APP_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/SLACK_APP_CLIENT_ID"
+                },
+                {
+                    "name": "SLACK_APP_CLIENT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/SLACK_APP_CLIENT_SECRET"
+                },
+                {
+                    "name": "SLACK_APP_SIGNING_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/SLACK_APP_SIGNING_SECRET"
+                },
+                {
+                    "name": "AZURE_AD_CLIENT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/AZURE_AD_CLIENT_ID"
+                },
+                {
+                    "name": "AZURE_AD_CLIENT_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/AZURE_AD_CLIENT_SECRET"
+                },
+                {
+                    "name": "AZURE_AD_TENANT_ID",
+                    "valueFrom": "/${ECS_SERVICE}/AZURE_AD_TENANT_ID"
+                },
+                {
+                    "name": "PARTNER_KIT_ALIVE_PUBLIC_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/PARTNER_KIT_ALIVE_PUBLIC_KEY"
+                },
+                {
+                    "name": "PARTNER_PAYABLE_PUBLIC_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/PARTNER_PAYABLE_PUBLIC_KEY"
+                },
+                {
+                    "name": "PARTNER_PAYABLE_ALLOWED_IPS",
+                    "valueFrom": "/${ECS_SERVICE}/PARTNER_PAYABLE_ALLOWED_IPS"
+                },
+                {
+                    "name": "PUSHER_APP_ID",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_APP_ID"
+                },
+                {
+                    "name": "PUSHER_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_KEY"
+                },
+                {
+                    "name": "PUSHER_SECRET",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_SECRET"
+                },
+                {
+                    "name": "PUSHER_CLUSTER",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_CLUSTER"
+                },
+                {
+                    "name": "PUSHER_SECURE",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_SECURE"
+                },
+                {
+                    "name": "PUSHER_ENCRYPTION_MASTER_KEY_BASE64",
+                    "valueFrom": "/${ECS_SERVICE}/PUSHER_ENCRYPTION_MASTER_KEY_BASE64"
+                },
+                {
+                    "name": "ENABLED_PPROF",
+                    "valueFrom": "/${ECS_SERVICE}/ENABLED_PPROF"
+                },
+                {
+                    "name": "NEW_CONCLUSION_ALLOW_OFFICES",
+                    "valueFrom": "/${ECS_SERVICE}/NEW_CONCLUSION_ALLOW_OFFICES"
+                },
+                {
+                    "name": "SECOM_REST_API_ALLOW_OFFICES",
+                    "valueFrom": "/${ECS_SERVICE}/SECOM_REST_API_ALLOW_OFFICES"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awsfirelens",
+                "options": {
+                    "Name": "datadog",
+                    "dd_service": "${ECS_SERVICE}_app",
+                    "dd_source": "go",
+                    "dd_tags": "project:${ECS_SERVICE}_app,env:${ENVIRONMENT}",
+                    "TLS": "on",
+                    "provider": "ecs"
+                },
+                "secretOptions": [
+                    {
+                        "name": "apiKey",
+                        "valueFrom": "/${ECS_SERVICE}/DD_API_KEY"
+                    }
+                ]
+            },
+            "dockerLabels": {
+                "com.datadoghq.tags.env": "${ENVIRONMENT}",
+                "com.datadoghq.tags.service": "${ECS_SERVICE}_app",
+                "com.datadoghq.tags.version": "${CIRCLE_SHA1}",
+                "com.datadoghq.ad.logs": "[{\"source\": \"go\", \"service\": \"${ECS_SERVICE}_app\"}]"
+            }
+        },
+        {
+            "name": "log_router",
+            "image": "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable",
+            "essential": true,
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "enable-ecs-log-metadata": "true",
+                    "config-file-type": "file",
+                    "config-file-value": "/fluent-bit/configs/parse-json.conf"
+                }
+            }
+        },
+        {
+            "name": "datadog-agent",
+            "image": "datadog/agent:latest",
+            "essential": true,
+            "environment": [
+                {
+                    "name": "ECS_FARGATE",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_APM_ENABLED",
+                    "value": "${DD_APM_ENABLED}"
+                },
+                {
+                    "name": "DD_LOGS_ENABLED",
+                    "value": "${DD_LOGS_ENABLED}"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_CONTAINER_EXCLUDE",
+                    "value": "name:datadog-agent name:log_router"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "DD_API_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/DD_API_KEY"
+                }
+            ]
+        }
+    ]
+}

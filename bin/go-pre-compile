@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+go install github.com/rubenv/sql-migrate/...@latest

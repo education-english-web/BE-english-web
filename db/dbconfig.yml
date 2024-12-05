@@ -1,0 +1,18 @@
+development:
+    dialect: postgres
+    datasource: host=localhost port=5432 user=admin password=education dbname=education sslmode=disable TimeZone=Asia/Ho_Chi_Minh
+    dir: migrations
+    table: schema_migrations ## table contains migration info
+
+heroku:
+    dialect: postgres
+    datasource: ${JAWSDB_URL}
+    dir: migrations
+    table: schema_migrations ## table contains migration info
+
+postgres_env:
+    dialect: postgres
+    datasource: host=${POSTGRES_HOST} port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable TimeZone=Asia/Ho_Chi_Minh
+    dir: migrations
+    table: schema_migrations ## table contains migration info
+

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+APP_DIR=$(cd $(dirname $0)/.. && pwd)
+
+function register_task_definitions() {
+  NEW_TASKDEF=$(cat $APP_DIR/scripts/task_definition_cron.json | envsubst)
+  echo "This is a new cron task definition"
+  echo $NEW_TASKDEF | jq .
+  echo $NEW_TASKDEF > /tmp/new_task_definition_cron.json
+  echo "Registering cron task definition..."
+  if TASK_REGISTRATION_OUTPUT=$(aws ecs register-task-definition --family "${ECS_SERVICE}_cron" --cli-input-json file:///tmp/new_task_definition_cron.json --region ${AWS_REGION}); then
+    echo "Successfully registering task"
+  else
+    echo "Failed to register task"
+    exit 1
+  fi
+}
+
+function deploy_cron() {
+  echo "Updating cron service..."
+  ecs deploy ${ECS_CLUSTER} "stampless_cron" --task "stampless_cron" --region ${AWS_REGION}
+  echo "Waiting for cron service deployment to complete..."
+  aws ecs wait services-stable --cluster ${ECS_CLUSTER} --services "stampless_cron" --region ${AWS_REGION}
+}
+
+register_task_definitions
+deploy_cron

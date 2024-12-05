@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -x
+
+#forApp
+echo 'export ECS_CLUSTER="stampless"' >> $BASH_ENV
+echo 'export APP_NAME="stampless_app"' >> $BASH_ENV
+echo 'export ECS_SERVICE="stampless"' >> $BASH_ENV
+echo 'export AWS_REGION="ap-northeast-1"' >> $BASH_ENV
+echo 'export ECR_AWS_ACCOUNT_ID="${ECR_AWS_ACCOUNT_ID}"' >> $BASH_ENV
+
+if [ "${ENVIRONMENT}" == "production" ]; then
+  #forTask
+  echo 'export RESERVED_CPU_UNIT_CRON=1024' >> $BASH_ENV
+  echo 'export RESERVED_MEMORY_CRON=2048' >> $BASH_ENV
+  echo 'export RESERVED_CPU_UNIT_APP=2048' >> $BASH_ENV
+  echo 'export RESERVED_MEMORY_APP=8192' >> $BASH_ENV
+
+  #forAWS
+  echo 'export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID_PRODUCTION}"' >> $BASH_ENV
+  echo 'export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY_PRODUCTION}"' >> $BASH_ENV
+  echo 'export CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID_PRODUCTION}"' >> $BASH_ENV
+  echo 'export LAMBDA_ENV=prod' >> $BASH_ENV
+
+  #forInternal
+  echo 'export API_BASE_URL="${API_BASE_URL_PRODUCTION}"' >> $BASH_ENV
+
+  #for datadog
+  echo 'export DD_APM_ENABLED="true"' >> $BASH_ENV
+  echo 'export DD_LOGS_ENABLED="true"' >> $BASH_ENV
+elif [ "${ENVIRONMENT}" == "staging" ]; then
+  #forTask
+  echo 'export RESERVED_CPU_UNIT_CRON=512' >> $BASH_ENV
+  echo 'export RESERVED_MEMORY_CRON=2048' >> $BASH_ENV
+  echo 'export RESERVED_CPU_UNIT_APP=512' >> $BASH_ENV
+  echo 'export RESERVED_MEMORY_APP=2048' >> $BASH_ENV
+
+  #forAWS
+  echo 'export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID_STAGING}"' >> $BASH_ENV
+  echo 'export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY_STAGING}"' >> $BASH_ENV
+  echo 'export CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID_STAGING}"' >> $BASH_ENV
+  echo 'export LAMBDA_ENV=test' >> $BASH_ENV
+
+  #forInternal
+  echo 'export API_BASE_URL="${API_BASE_URL_STAGING}"' >> $BASH_ENV
+
+  #for datadog
+  echo 'export DD_APM_ENABLED="true"' >> $BASH_ENV
+  echo 'export DD_LOGS_ENABLED="true"' >> $BASH_ENV
+fi

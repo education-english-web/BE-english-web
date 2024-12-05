@@ -1,0 +1,140 @@
+basePath: /api/v1
+definitions:
+  payload.UserAddRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phonenumber:
+        type: string
+      rolecode:
+        enum:
+        - user
+        - manager
+        - admin
+        - superadmin
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - phonenumber
+    - rolecode
+    - username
+    type: object
+  payload.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - password
+    type: object
+  presenter.User:
+    properties:
+      avatar_link:
+        type: string
+      email:
+        type: string
+      phone_number:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the project of stampless team
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Edu backend
+  version: "1.0"
+paths:
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: login an user
+      parameters:
+      - description: internal user email and password
+        in: body
+        name: payloadBody
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.User'
+      summary: login an user
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get information of logged in users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.User'
+      summary: Get information of logged in users
+      tags:
+      - users
+  /users/refresh:
+    post:
+      consumes:
+      - application/json
+      description: refresh  for access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.User'
+      summary: refresh for access token
+      tags:
+      - users
+  /users/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: add an user to system
+      parameters:
+      - description: internal user email and role
+        in: body
+        name: payloadBody
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UserAddRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.User'
+      summary: add an internal user to system
+      tags:
+      - users
+swagger: "2.0"

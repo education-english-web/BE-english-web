@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+APP_DIR=$(cd $(dirname $0)/.. && pwd)
+
+function register_task_definitions() {
+  NEW_TASKDEF=$(cat $APP_DIR/scripts/task_definition_app.json | envsubst)
+  echo "This is a new app task definition"
+  echo $NEW_TASKDEF | jq .
+  echo $NEW_TASKDEF > /tmp/new_task_definition_app.json
+  echo "Registering ap task definition..."
+  if TASK_REGISTRATION_OUTPUT=$(aws ecs register-task-definition --family "${ECS_SERVICE}_app" --cli-input-json file:///tmp/new_task_definition_app.json --region ${AWS_REGION}); then
+    echo "Successfully registering task"
+  else
+    echo "Failed to register task"
+    exit 1
+  fi
+}
+
+function deploy_app() {
+  echo "Updating app service..."
+  ecs deploy ${ECS_CLUSTER} "${APP_NAME}" --task "${APP_NAME}" --region ${AWS_REGION} --timeout 600
+  echo "Waiting for app service deployment to complete..."
+  aws ecs wait services-stable --cluster ${ECS_CLUSTER} --services "${APP_NAME}" --region ${AWS_REGION}
+}
+
+function run_migration() {
+  echo "Running DB migration"
+  SG_GROUP_ID=$(aws ec2 describe-security-groups --filter Name=group-name,Values=${ECS_SERVICE}-private --query "SecurityGroups[0].GroupId" --region "${AWS_REGION}" --output text)
+  SUBNET_ID=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=${ECS_SERVICE}-private --query "Subnets[0].SubnetId" --region "${AWS_REGION}" --output text)
+  ecs run ${ECS_CLUSTER} ${APP_NAME} --launchtype=FARGATE --securitygroup $SG_GROUP_ID --subnet $SUBNET_ID -c ${APP_NAME} "make migrate" --region ${AWS_REGION}
+}
+
+function create_cloudfront_invalidation() {
+  echo "Creating cloudfront invalidation"
+  aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --paths "/*" --region ${AWS_REGION}
+}
+
+register_task_definitions
+run_migration
+deploy_app
+create_cloudfront_invalidation

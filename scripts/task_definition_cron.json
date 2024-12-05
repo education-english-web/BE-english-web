@@ -1,0 +1,141 @@
+{
+    "taskRoleArn": "ecsTaskRole-${APP_NAME}",
+    "executionRoleArn": "ecsTaskExecutionRole-${APP_NAME}",
+    "volumes": [],
+    "family": "${APP_NAME}",
+    "cpu": "${RESERVED_CPU_UNIT_CRON}",
+    "memory": "${RESERVED_MEMORY_CRON}",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "requiresCompatibilities": ["FARGATE"],
+    "containerDefinitions": [
+        {
+            "disableNetworking": false,
+            "name": "${ECS_SERVICE}_cron",
+            "image": "${ECR_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}:cron_${CIRCLE_SHA1}",
+            "essential": true,
+            "command": ["sh", "-c", "/stampless_cron start"],
+            "environment": [
+                {
+                    "name": "ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_VERSION",
+                    "value": "${CIRCLE_SHA1}"
+                },
+                {
+                    "name": "DD_SERVICE",
+                    "value": "${ECS_SERVICE}_cron"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_PROFILING_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_TAGS",
+                    "value": "env:${ENVIRONMENT},service:${ECS_SERVICE}_cron,version:${CIRCLE_SHA1}"
+                },
+                {
+                    "name": "API_BASE_URL",
+                    "value": "${API_BASE_URL}"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "BASIC_AUTHENTICATION_USERNAME",
+                    "valueFrom": "/${ECS_SERVICE}/BASIC_AUTHENTICATION_USERNAME"
+                },
+                {
+                    "name": "BASIC_AUTHENTICATION_PASSWORD",
+                    "valueFrom": "/${ECS_SERVICE}/BASIC_AUTHENTICATION_PASSWORD"
+                },
+                {
+                    "name": "ROLLBAR_TOKEN",
+                    "valueFrom": "/${ECS_SERVICE}/ROLLBAR_TOKEN"
+                },
+                {
+                    "name": "NOTIFIER_ENGINE",
+                    "valueFrom": "/${ECS_SERVICE}/NOTIFIER_ENGINE"
+                },
+                {
+                    "name": "HC_PING_UID",
+                    "valueFrom": "/${ECS_SERVICE}/HC_PING_UID"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awsfirelens",
+                "options": {
+                    "Name": "datadog",
+                    "dd_service": "${ECS_SERVICE}_cron",
+                    "dd_source": "go",
+                    "dd_tags": "project:${ECS_SERVICE}_cron,env:${ENVIRONMENT}",
+                    "TLS": "on",
+                    "provider": "ecs"
+                },
+                "secretOptions": [
+                    {
+                        "name": "apiKey",
+                        "valueFrom": "/${ECS_SERVICE}/DD_API_KEY"
+                    }
+                ]
+            },
+            "dockerLabels": {
+                "com.datadoghq.tags.env": "${ENVIRONMENT}",
+                "com.datadoghq.tags.service": "${ECS_SERVICE}_cron",
+                "com.datadoghq.tags.version": "${CIRCLE_SHA1}",
+                "com.datadoghq.ad.logs": "[{\"source\": \"go\", \"service\": \"${ECS_SERVICE}_cron\"}]"
+            }
+        },
+        {
+            "name": "log_router",
+            "image": "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable",
+            "essential": true,
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "enable-ecs-log-metadata": "true",
+                    "config-file-type": "file",
+                    "config-file-value": "/fluent-bit/configs/parse-json.conf"
+                }
+            }
+        },
+        {
+            "name": "datadog-agent",
+            "image": "datadog/agent:latest",
+            "essential": true,
+            "environment": [
+                {
+                    "name": "ECS_FARGATE",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_APM_ENABLED",
+                    "value": "${DD_APM_ENABLED}"
+                },
+                {
+                    "name": "DD_LOGS_ENABLED",
+                    "value": "${DD_LOGS_ENABLED}"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "${ENVIRONMENT}"
+                },
+                {
+                    "name": "DD_CONTAINER_EXCLUDE",
+                    "value": "name:datadog-agent name:log_router"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "DD_API_KEY",
+                    "valueFrom": "/${ECS_SERVICE}/DD_API_KEY"
+                }
+            ]
+        }
+    ]
+}

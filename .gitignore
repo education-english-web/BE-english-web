@@ -1,0 +1,6 @@
+.env
+log_middleware/
+vendor/
+example/
+.idea/
+.DS_Store

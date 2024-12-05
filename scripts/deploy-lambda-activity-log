@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+
+
+aws lambda update-function-code --function-name "stampless-${LAMBDA_ENV}-activity-log" --zip-file fileb://./"bootstrap.zip" --no-publish --region "$AWS_REGION"
+version=$(aws lambda publish-version --function-name "stampless-${LAMBDA_ENV}-activity-log" --region "$AWS_REGION" | jq .Version | xargs)
+echo "Checking for alias duplication"
+CREATE_ALIAS_EXIT_CODE=0
+aws lambda get-alias --function-name "stampless-${LAMBDA_ENV}-activity-log" --name "activity-log-$CIRCLE_SHA1" || CREATE_ALIAS_EXIT_CODE=$?
+if [ $CREATE_ALIAS_EXIT_CODE -ne 0 ]
+then
+    echo "Creating alias"
+    aws lambda create-alias --function-name "stampless-${LAMBDA_ENV}-activity-log" --description "Alias for $CIRCLE_SHA1" --function-version "$version" --name "activity-log-$CIRCLE_SHA1" --region "$AWS_REGION"
+fi

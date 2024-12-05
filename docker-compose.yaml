@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: postgres_education
+    restart: always
+    image: postgres:12
+    ports:
+      - 5432:5432
+    shm_size: 4GB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    #      - $PROJECT_DIR/backend/db:/db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_ROOT_PASSWORD=root123
+      - POSTGRES_PORT=5432
+      - POSTGRES_PASSWORD=education
+      - POSTGRES_DB=education
+      
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ~/.docker/data/rediseducationconf:/redis.conf
+      - ~/.docker/data/rediseducation:/var/lib/redis
+    command: redis-server --requirepass 1234
+
+#  sonarqube:
+#    image: sonarqube:latest
+#    ports:
+#      - "9000:9000"
+#  datadog:
+#    image: datadog/agent:latest
+#    environment:
+#      - DD_API_KEY=dd5a413ed66acf0cb70158dd9a8afe43
+#      - DD_APM_ENABLED=true
+#    ports:
+#      - "8126:8126/tcp"  # APM tracing port
+#      - "8125:8125/udp"  # DogStatsD port
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /proc:/host/proc:ro
+#      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+
+volumes:
+#  mysqleducation:
+  rediseducationconf:
+  rediseducation:
+  postgres_data:
+  # datadog:
